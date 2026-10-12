@@ -1,0 +1,6 @@
+# Credenciales (WiFi + API key): nunca al repo
+firmware/src/secrets.h
+
+# PlatformIO
+firmware/.pio/
+.vscode/
