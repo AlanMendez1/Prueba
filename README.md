@@ -152,6 +152,22 @@ firmware/
   test/test_calculator/   pruebas de calculadora y texto (pio test -e native)
 ```
 
+## Pantalla y ventana de la Casio
+
+- **Ventana (abertura) de la Casio: 75 × 43 mm** (ancho × alto, medida 2026-10-13). Es formato
+  ~16:9, pensado para la pantalla original de 3,17" (384×216). Hueco interior: ~79 × 69 mm.
+- Ninguna TFT SPI común es 16:9; comparación (imagen / vidrio aprox., confirmar con el módulo):
+
+| Pantalla | Imagen | Vidrio | Resultado en la ventana |
+|---|---|---|---|
+| 2,8" ILI9341 320×240 | 57,6 × 43,2 | ≈ 69 × 50 | Alto justo; ~8,7 mm vacíos a cada lado → requiere marco negro |
+| 3,2" ILI9341 320×240 | 64,8 × 48,6 | ≈ 78 × 56 | Cubre toda la ventana; se tapan ~2,8 mm (≈14 px) arriba y abajo |
+| 3,5" ILI9488 480×320 | 73,4 × 49 | ≈ 85 × 55 | El vidrio no entra en el hueco de 79 mm |
+
+- Candidata para el montaje final: **3,2" ILI9341** (mismo driver). El firmware debe reservar ~14 px
+  arriba y abajo. El PCB de los módulos de 3,2" (≈ 89 × 56) no entra en el hueco: usar el panel suelto con FPC
+  o recortar el PCB.
+
 ## Notas para la PCB (fase 1)
 
 - Mismos pines que la fase 0. Se cambia el DevKitC por **ESP32-S3-WROOM-1 N16R8** con EN
