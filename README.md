@@ -24,6 +24,8 @@ El diseño completo (50 teclas, cámara, MCP23017) sigue en pausa y **no** se to
 - **M-004** F1 = **menú de preguntas predefinidas** sobre la operación actual (sin texto libre).
 - **M-005** Modelo: **Claude Opus 5.5** (`claude-opus-5-5`), `effort: medium`, respuesta corta en texto plano.
   Si el modelo declina una consulta, la API la reintenta en otro modelo (`fallbacks: "default"`).
+- **M-006** Pantalla: **TFT 2,8" ILI9341 320×240** (2026-10-13). En la ventana de la Casio (75 × 43 mm)
+  encaja de alto; los ~8,7 mm que sobran a cada lado se cubren con un **marco negro** impreso.
 
 ## Fase 0 — lo que necesitas
 
@@ -164,9 +166,10 @@ firmware/
 | 3,2" ILI9341 320×240 | 64,8 × 48,6 | ≈ 78 × 56 | Cubre toda la ventana; se tapan ~2,8 mm (≈14 px) arriba y abajo |
 | 3,5" ILI9488 480×320 | 73,4 × 49 | ≈ 85 × 55 | El vidrio no entra en el hueco de 79 mm |
 
-- Candidata para el montaje final: **3,2" ILI9341** (mismo driver). El firmware debe reservar ~14 px
-  arriba y abajo. El PCB de los módulos de 3,2" (≈ 89 × 56) no entra en el hueco: usar el panel suelto con FPC
-  o recortar el PCB.
+- **Elegida: 2,8" ILI9341** (M-006). La imagen (57,6 × 43,2) ocupa todo el alto de la ventana y queda centrada
+  a lo ancho; un **marco negro** (impreso en 3D) tapa los ~8,7 mm de cada costado, donde el vidrio no llega.
+  El firmware no cambia (320×240 horizontal, todo el área visible). La placa típica del módulo (≈ 86 × 50 mm)
+  es más ancha que el hueco (79 mm): para el montaje final, panel suelto o placa recortada.
 
 ## Notas para la PCB (fase 1)
 
