@@ -79,7 +79,10 @@ pio run -e ili9341 -t upload               # o: -e st7789 · en la PCB mínima: 
 pio device monitor                          # log por el puerto serie
 ```
 
-- Conecta el DevKitC por el puerto **USB** (no el "UART"): el log va por el USB nativo, como en la PCB final.
+- Conecta el DevKitC por la entrada **COM** (o UART) para subir el programa: su puerto no desaparece cuando el ESP32
+  se reinicia. (El log de `Serial` sale por la entrada USB nativa, como en la PCB final.)
+- Si la carga falla con `MD5 of file does not match data in flash`, borra la memoria una vez y vuelve a subir:
+  `esptool.py --port COMx erase_flash` (pasó con una N16R8 clónica con flash Boya).
 - `src/secrets.h` está en `.gitignore`. **Nunca subas la API key al repo.**
 - ST7789: si los colores salen invertidos o con rojo y azul cambiados, mira los comentarios de `[env:st7789]` en `platformio.ini`.
 - Pruebas de la lógica en la PC, sin hardware: `pio test -e native`.
