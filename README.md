@@ -47,7 +47,11 @@ El diseño completo (50 teclas, cámara, MCP23017) sigue en pausa y **no** se to
 | DC | IO13 |
 | MOSI / SDA | IO11 |
 | SCK / SCL | IO12 |
-| BL / LED | IO21 |
+| BL / LED | **3V3** (en protoboard) |
+
+En la protoboard, el pin LED va a 3V3: la luz de fondo queda siempre encendida y el GPIO no carga
+con su corriente. IO21 queda libre. En la PCB la controla el P-MOSFET Q2 desde IO21.
+Guía visual paso a paso: https://claude.ai/artifact/F7U5y6DYWdb4tAgpFHSM6E
 
 **Teclado — matriz 5×5.** Cada pulsador une su **fila** con su **columna**. No lleva resistencias
 (pull-ups internos) ni diodos (no hacen falta combinaciones de teclas).
