@@ -22,7 +22,8 @@ El diseño completo (50 teclas, cámara, MCP23017) sigue en pausa y **no** se to
 - **M-002** Teclado: **pulsadores táctiles 6×6** propios (no la goma original) → PCB trivial, sin ENIG obligatorio.
 - **M-003** Alimentación (para la PCB): **LiPo 1S con PCM propio + TP4056 (USB-C) + LDO 3V3 SOT-23-5** (AP2112K-3.3 / ME6211). Sin DW01A/FS8205A ni TPS6302x: todo soldable a mano.
 - **M-004** F1 = **menú de preguntas predefinidas** sobre la operación actual (sin texto libre).
-- **M-005** Modelo: **Claude Haiku 5.5** (`claude-haiku-5-5`), `effort: low`, respuesta corta en texto plano.
+- **M-005** Modelo: **Claude Opus 5.5** (`claude-opus-5-5`), `effort: medium`, respuesta corta en texto plano.
+  Si el modelo declina una consulta, la API la reintenta en otro modelo (`fallbacks: "default"`).
 
 ## Fase 0 — lo que necesitas
 
@@ -98,7 +99,7 @@ pio device monitor                          # log por el puerto serie
    - Verificar el resultado
    - Otra forma de resolverlo
    - Dato curioso del resultado
-2. `↑ ↓` elige, `=` envía. Aparece "Consultando a Claude..." (unos segundos).
+2. `↑ ↓` elige, `=` envía. Aparece "Consultando a Claude..." (unos segundos; el teclado no responde mientras tanto).
 3. En la respuesta: `↑ ↓` la desplaza, `AC` o `F1` vuelven al menú, `F2` vuelve a la calculadora.
 
 Las fuentes de la pantalla son ASCII, así que el firmware convierte acentos y símbolos
@@ -106,11 +107,17 @@ Las fuentes de la pantalla son ASCII, así que el firmware convierte acentos y s
 
 ## Claude API
 
-- `POST https://api.anthropic.com/v1/messages` con `x-api-key`, `anthropic-version: 2023-06-01` y `content-type: application/json`.
-- Modelo `claude-haiku-5-5`, `output_config.effort = "low"` y `max_tokens = 1024`. Haiku 5.5 razona por defecto y ese razonamiento cuenta dentro de `max_tokens`, por eso el margen.
-- La respuesta puede traer bloques `thinking` vacíos: solo se muestran los bloques `text`.
+- `POST https://api.anthropic.com/v1/messages` con `x-api-key`, `anthropic-version: 2023-06-01`,
+  `anthropic-beta: server-side-fallback-2026-07-01` y `content-type: application/json`.
+- Modelo `claude-opus-5-5`, `output_config.effort = "medium"` y `max_tokens = 4096`. Opus 5.5 siempre razona
+  (no se puede apagar) y ese razonamiento cuenta dentro de `max_tokens`, por eso el margen. Con `effort = "low"`
+  responde más rápido; con `"high"` razona más.
+- `fallbacks: "default"`: si el modelo declina la consulta, la API la reintenta sola en el modelo que Anthropic
+  recomienda para ese caso. Para quitarlo, borra esa línea y el header `anthropic-beta` en `claude_client.cpp`.
+- La respuesta puede traer bloques `thinking` vacíos (y `fallback` si hubo reintento): solo se muestran los bloques `text`.
   Se manejan `stop_reason: "refusal"` (aviso) y `"max_tokens"` (se agrega `[...]`).
-- Costo aproximado: unos US$0,0004 por consulta (US$0,10 por millón de tokens de entrada y US$0,50 por millón de salida).
+- Costo aproximado: unos US$0,01–0,03 por consulta (US$4 por millón de tokens de entrada y US$20 por millón de salida;
+  el razonamiento se cobra como salida).
 - Ajustes en `firmware/src/config.h`; textos del menú y de las preguntas en `firmware/src/main.cpp`.
 
 ### TLS

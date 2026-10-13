@@ -17,7 +17,7 @@ constexpr uint8_t COL_PINS[KEY_COLS] = {16, 17, 18, 8, 9};
 
 // ---- Claude (Messages API) ----
 constexpr const char* CLAUDE_URL = "https://api.anthropic.com/v1/messages";
-constexpr const char* CLAUDE_MODEL = "claude-haiku-5-5";
-constexpr const char* CLAUDE_EFFORT = "low";  // respuestas rápidas y baratas
-constexpr int CLAUDE_MAX_TOKENS = 1024;       // incluye el razonamiento interno del modelo
-constexpr uint16_t CLAUDE_TIMEOUT_MS = 45000;
+constexpr const char* CLAUDE_MODEL = "claude-opus-5-5";
+constexpr const char* CLAUDE_EFFORT = "medium";  // "low" responde más rápido; "high" razona más
+constexpr int CLAUDE_MAX_TOKENS = 4096;          // incluye el razonamiento interno (siempre activo)
+constexpr uint16_t CLAUDE_TIMEOUT_MS = 60000;

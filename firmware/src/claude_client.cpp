@@ -30,6 +30,9 @@ String buildBody(const String& prompt) {
   doc["model"] = CLAUDE_MODEL;
   doc["max_tokens"] = CLAUDE_MAX_TOKENS;
   doc["output_config"]["effort"] = CLAUDE_EFFORT;
+  // Si el modelo declina la consulta, la API la reintenta sola en otro modelo
+  // (requiere el header anthropic-beta de abajo).
+  doc["fallbacks"] = "default";
   doc["system"] = SYSTEM_PROMPT;
   JsonObject msg = doc["messages"].add<JsonObject>();
   msg["role"] = "user";
@@ -63,6 +66,7 @@ ClaudeReply askClaude(const String& prompt) {
   http.addHeader("content-type", "application/json");
   http.addHeader("x-api-key", ANTHROPIC_API_KEY);
   http.addHeader("anthropic-version", "2023-06-01");
+  http.addHeader("anthropic-beta", "server-side-fallback-2026-07-01");
 
   const int status = http.POST(buildBody(prompt));
   if (status <= 0) {
@@ -94,7 +98,7 @@ ClaudeReply askClaude(const String& prompt) {
     return fail("Claude no respondio a esta consulta. Prueba con otra opcion.");
   }
 
-  // La respuesta puede traer bloques "thinking" (vacíos); solo se muestran los "text".
+  // La respuesta puede traer bloques "thinking" (vacíos) y "fallback"; solo se muestran los "text".
   std::string text;
   for (JsonObject block : doc["content"].as<JsonArray>()) {
     if (strcmp(block["type"] | "", "text") == 0) text += block["text"] | "";
