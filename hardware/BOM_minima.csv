@@ -1,0 +1,29 @@
+Ref,Componente,Valor/Parte,Footprint KiCad (sugerido),Cant,Notas
+U1,MCU módulo,ESP32-S3-WROOM-1 N16R8,RF_Module:ESP32-S3-WROOM-1,1,antena en el borde superior; keepout sin cobre
+U2,Cargador LiPo,TP4056,SOIC-8 con pad expuesto (ESOP-8),1,elegir la variante EP según el datasheet del fabricante
+U3,LDO 3V3,AP2112K-3.3 (alt. ME6211C33),Package_TO_SOT_SMD:SOT-23-5,1,600 mA; dropout ~250 mV
+"Q1,Q2",P-MOSFET,AO3401A,Package_TO_SOT_SMD:SOT-23,2,Q1 carga con la placa encendida; Q2 retroiluminación
+D1,Schottky,SS14,Diode_SMD:D_SMA,1,+5V -> VSYS
+D2,LED,rojo (cargando),LED_SMD:LED_0805_2012Metric,1,visible en la franja superior
+D3,LED,verde (cargada),LED_SMD:LED_0805_2012Metric,1,visible en la franja superior
+J1,USB-C receptáculo,16 pines USB 2.0 (HRO TYPE-C-31-M-12 o equivalente),Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12,1,borde superior
+J2,Conector batería,JST-PH 2 pines,Connector_JST:JST_PH_S2B-PH-K_1x02_P2.00mm_Horizontal,1,LiPo 1S con PCM; revisar polaridad del cable
+J3,Zócalo TFT,hembra 1x14 2.54 mm,Connector_PinSocket_2.54mm:PinSocket_1x14_P2.54mm_Vertical,1,el módulo TFT se enchufa encima
+J4,UART depuración (opcional),macho 1x04 2.54 mm,Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical,1,3V3 TX RX GND
+"SW1,SW2",Pulsador,RESET / BOOT,Button_Switch_THT:SW_PUSH_6mm,2,fuera de la cuadrícula del teclado
+SW3,Interruptor deslizante,SPDT (SS12D00 / OS102011 o similar),según el modelo que compres,1,corta VSYS -> LDO (la carga sigue funcionando)
+SW10-SW33,Teclas,pulsador táctil 6x6 mm THT,Button_Switch_THT:SW_PUSH_6mm,24,paso 15 x 13 mm
+R1,Pull-up EN,10k,Resistor_SMD:R_0805_2012Metric,1,
+"R2,R3",CC USB-C,5.1k,Resistor_SMD:R_0805_2012Metric,2,
+R4,R_PROG TP4056,2k (~580 mA),Resistor_SMD:R_0805_2012Metric,1,1.2k = ~1 A solo con batería >= 1000 mAh
+"R5,R6",LEDs de carga,1k,Resistor_SMD:R_0805_2012Metric,2,
+R7,Pull-down gate Q1,100k,Resistor_SMD:R_0805_2012Metric,1,+5V -> GND
+"R8,R9",Divisor VBAT,100k,Resistor_SMD:R_0805_2012Metric,2,ADC en IO1
+R10,Pull-up gate Q2,10k,Resistor_SMD:R_0805_2012Metric,1,retroiluminación apagada al arrancar
+C1,EN,1uF,Capacitor_SMD:C_0805_2012Metric,1,
+"C2,C3,C4",Entrada/batería/LDO,10uF,Capacitor_SMD:C_0805_2012Metric,3,
+"C5,C6",Salida 3V3,22uF,Capacitor_SMD:C_0805_2012Metric,2,C6 pegado al pin 3V3 del ESP32
+"C7,C8,C9",Desacoplo,100nF,Capacitor_SMD:C_0805_2012Metric,3,ESP32 / TFT / ADC
+H1-H4,Agujeros de montaje,M3,MountingHole:MountingHole_3.2mm_M3,4,esquinas
+TFT,Pantalla,módulo SPI 2.8in ILI9341 320x240,-,1,enchufado en J3 + separadores M3
+BT1,Batería,LiPo 1S 3.7 V con PCM y JST-PH,-,1,>= 600 mAh con R4 = 2k

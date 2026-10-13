@@ -14,7 +14,7 @@ El diseño completo (50 teclas, cámara, MCP23017) sigue en pausa y **no** se to
 | Fase | Qué | Estado |
 |---|---|---|
 | 0 | Firmware en protoboard: ESP32-S3-DevKitC + TFT SPI + 24 pulsadores | **Firmware listo** (compila; lógica con pruebas) — falta probarlo en hardware |
-| 1 | PCB mínima (mismos pines) | Pendiente |
+| 1 | PCB mínima 90 × 135 mm (mismos pines) | **Esquema, BOM y plano listos** en [`hardware/`](hardware/) — falta dibujarla en KiCad |
 
 ## Decisiones de este prototipo (2026-10-12)
 
@@ -58,7 +58,7 @@ El diseño completo (50 teclas, cámara, MCP23017) sigue en pausa y **no** se to
 | **R1 = IO5**  | 4 | 5 | 6 | × | DEL |
 | **R2 = IO6**  | 1 | 2 | 3 | − | F1 |
 | **R3 = IO7**  | 0 | . | = | + | F2 |
-| **R4 = IO15** | ↑ | ↓ | ← | → | (libre) |
+| **R4 = IO15** | ← | ↑ | ↓ | → | (libre) |
 
 Pines elegidos para no tocar: strapping (IO0, IO3, IO45, IO46), PSRAM octal (IO33–37),
 USB (IO19/20), JTAG (IO39–42) ni el LED RGB de algunos DevKitC (IO38/IO48).
@@ -71,7 +71,7 @@ Con **PlatformIO** (VS Code + extensión PlatformIO, o `pip install platformio`)
 ```bash
 cd firmware
 cp src/secrets.h.example src/secrets.h     # y completa WiFi + API key
-pio run -e ili9341 -t upload               # o: -e st7789
+pio run -e ili9341 -t upload               # o: -e st7789 · en la PCB mínima: -e pcb
 pio device monitor                          # log por el puerto serie
 ```
 
@@ -152,6 +152,12 @@ firmware/
     ui.*                  pantallas con TFT_eSPI (320x240 horizontal)
     text_utils.*          UTF-8 → ASCII para la pantalla
   test/test_calculator/   pruebas de calculadora y texto (pio test -e native)
+hardware/
+  guia_conexiones_minima.md   esquemático bloque por bloque para KiCad
+  BOM_minima.csv              materiales con huellas sugeridas
+  PCB_Especificacion_minima.md  contorno, ubicación, ruteo, primer encendido
+  contorno_minima.dxf         contorno 90 × 135 (Edge.Cuts)
+  floorplan_minima.svg        plano de ubicación
 ```
 
 ## Pantalla y ventana de la Casio
@@ -171,12 +177,14 @@ firmware/
   El firmware no cambia (320×240 horizontal, todo el área visible). La placa típica del módulo (≈ 86 × 50 mm)
   es más ancha que el hueco (79 mm): para el montaje final, panel suelto o placa recortada.
 
-## Notas para la PCB (fase 1)
+## PCB mínima (fase 1)
 
-- Mismos pines que la fase 0. Se cambia el DevKitC por **ESP32-S3-WROOM-1 N16R8** con EN
-  (10k + 100nF + RESET), IO0 (BOOT) y USB-C con D+/D− a IO20/IO19 y CC1/CC2 con 5.1k a GND.
-- **LDO 3V3:** AP2112K-3.3 o ME6211 (600/500 mA). Pon bulk de ≥ 22 µF a la salida y 10 µF a la entrada:
-  los picos de transmisión WiFi rondan los 350–500 mA. Con LiPo funciona hasta ~3.5 V; la última parte de la descarga no se aprovecha (aceptable en un prototipo).
-- **TP4056 sin load-sharing:** si la placa funciona mientras carga, el consumo engaña al fin de carga.
-  Para el prototipo es aceptable; si molesta, se agrega P-MOSFET + Schottky.
-- Divisor 100k/100k de VBAT a IO1 para medir la batería (el firmware todavía no lo usa).
+Detalle completo en [`hardware/PCB_Especificacion_minima.md`](hardware/PCB_Especificacion_minima.md) y
+[`hardware/guia_conexiones_minima.md`](hardware/guia_conexiones_minima.md). En resumen:
+
+- Placa de prueba **90 × 135 mm**, 2 capas, HASL. Todo en la cara frontal; la TFT 2,8" va enchufada encima (J3).
+- **ESP32-S3-WROOM-1 N16R8** soldado, con la antena en el borde superior (keepout sin cobre). Mismos pines que la fase 0.
+- **USB-C** nativo (programación + carga). **TP4056** (R_PROG 2k ≈ 580 mA) con **carga con la placa encendida**
+  (Q1 + D1). Interruptor ON/OFF y **LDO AP2112K-3.3**.
+- Retroiluminación por P-MOSFET (activa en LOW): compilar con `pio run -e pcb`.
+- Divisor 100k/100k de VBAT a IO1 (el firmware todavía no lo usa).

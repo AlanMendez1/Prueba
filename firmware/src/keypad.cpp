@@ -17,7 +17,7 @@ const Key KEYMAP[KEY_ROWS][KEY_COLS] = {
     {Key::D4, Key::D5, Key::D6, Key::Mul, Key::Del},
     {Key::D1, Key::D2, Key::D3, Key::Sub, Key::F1},
     {Key::D0, Key::Dot, Key::Eq, Key::Add, Key::F2},
-    {Key::Up, Key::Down, Key::Left, Key::Right, Key::None},
+    {Key::Left, Key::Up, Key::Down, Key::Right, Key::None},
 };
 
 bool repeats(Key k) {
