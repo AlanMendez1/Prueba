@@ -38,6 +38,34 @@ Ui ui;
 int menuSelected = 0;
 std::string aiContext;
 
+const char* wifiStatusText(wl_status_t status) {
+  switch (status) {
+    case WL_CONNECTED: return "conectado";
+    case WL_NO_SSID_AVAIL: return "red no encontrada (¿es de 5 GHz o el nombre está mal?)";
+    case WL_CONNECT_FAILED: return "falló la conexión (¿clave incorrecta?)";
+    case WL_CONNECTION_LOST: return "conexión perdida";
+    case WL_DISCONNECTED: return "desconectado, reintentando";
+    case WL_IDLE_STATUS: return "esperando";
+    default: return "otro estado";
+  }
+}
+
+// Lista las redes de 2,4 GHz que ve el ESP32 (no ve las de 5 GHz).
+void logVisibleNetworks() {
+  Serial.println("[wifi] buscando redes...");
+  const int count = WiFi.scanNetworks();
+  bool found = false;
+  for (int i = 0; i < count; i++) {
+    const String ssid = WiFi.SSID(i);
+    if (ssid == WIFI_SSID) found = true;
+    Serial.printf("[wifi]   \"%s\"  señal %d dBm  canal %d\n", ssid.c_str(), WiFi.RSSI(i), WiFi.channel(i));
+  }
+  if (count <= 0) Serial.println("[wifi]   (no se ve ninguna red)");
+  Serial.printf("[wifi] la red \"%s\" %s\n", WIFI_SSID,
+                found ? "SÍ aparece" : "NO aparece: revisa el nombre o usa una red de 2,4 GHz");
+  WiFi.scanDelete();
+}
+
 void showCalc(const char* notice = nullptr) {
   mode = Mode::Calc;
   ui.showCalc(calculator, notice);
@@ -129,6 +157,7 @@ void setup() {
   ui.begin();
   Serial.println("[boot] pantalla inicializada");
   WiFi.mode(WIFI_STA);
+  logVisibleNetworks();
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  // conecta en segundo plano
   Serial.printf("[wifi] conectando a \"%s\"...\n", WIFI_SSID);
   showCalc();
@@ -136,14 +165,19 @@ void setup() {
 }
 
 void loop() {
-  static bool wifiWasUp = false;
-  const bool wifiUp = WiFi.status() == WL_CONNECTED;
-  if (wifiUp != wifiWasUp) {
-    wifiWasUp = wifiUp;
-    if (wifiUp) Serial.printf("[wifi] conectado, IP %s\n", WiFi.localIP().toString().c_str());
-    else Serial.println("[wifi] desconectado");
+  static wl_status_t lastStatus = WL_IDLE_STATUS;
+  const wl_status_t status = WiFi.status();
+  if (status != lastStatus) {
+    lastStatus = status;
+    if (status == WL_CONNECTED) {
+      Serial.printf("[wifi] conectado, IP %s\n", WiFi.localIP().toString().c_str());
+    } else {
+      Serial.printf("[wifi] %s\n", wifiStatusText(status));
+      if (mode == Mode::Calc && status == WL_NO_SSID_AVAIL) showCalc("WiFi: red no encontrada (2,4 GHz?)");
+      if (mode == Mode::Calc && status == WL_CONNECT_FAILED) showCalc("WiFi: revisa la clave");
+    }
   }
-  ui.setWifi(wifiUp);
+  ui.setWifi(status == WL_CONNECTED);
 
   const Key k = keypad.poll();
   if (k == Key::None) return;
