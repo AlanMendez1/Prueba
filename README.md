@@ -152,29 +152,21 @@ intermedios cambian más seguido.
 
 ## Prueba del teclado original de la Casio
 
-Cable plano soldado al conector **CN701** de la placa de teclas. El programa `src/casio_test.cpp`
-(entorno `casio_test`) no necesita saber qué líneas son filas o columnas: pone en LOW una línea a
-la vez y muestra en la TFT el par que une cada tecla (`T710 + T719`) con un símbolo distinto.
-El monitor serie imprime la línea lista para copiar a la tabla `KEYS` y darle nombre a la tecla.
+Cable plano soldado al conector **CN701** de la placa de teclas y enchufado **directo** a los pines
+del DevKit. El programa (`firmware/arduino/casio_test/casio_test.ino` para Arduino IDE, o
+`src/casio_test.cpp` con el entorno `casio_test` de PlatformIO) no necesita saber qué líneas son
+filas o columnas: pone en LOW una línea a la vez y muestra en la TFT el par que une cada tecla
+(`IO5 + IO18`) con un símbolo distinto. El monitor serie imprime la línea lista para copiar a la
+tabla `KEYS` y darle nombre a la tecla.
 
-| Casio (CN701) | ESP32 | Casio (CN701) | ESP32 |
-|---|---|---|---|
-| 4 · T710 | IO4 | 12 · T708 | IO8 |
-| 5 · T703 | IO5 | 13 · T711 | IO9 |
-| 6 · T706 | IO6 | 14 · T712 | IO1 |
-| 7 · T716 | IO7 | 15 · T713 | IO2 |
-| 8 · T707 | IO15 | 16 · T714 | IO42 |
-| 9 · (sin nombre) | IO16 | 17 · T705 | IO41 |
-| 10 · (sin nombre) | IO17 | 18 · T704 | IO40 |
-| 11 · T719 | IO18 | 19 · T709 | IO39 |
-| un VCC | IO47 | los 2 GND | GND |
+| Uso | Pines del DevKit |
+|---|---|
+| Teclado Casio (lado derecho) | 5, 6, 7, 15, 16, 17, 18, 8, 3, 46 |
+| Teclado Casio (lado izquierdo) | 1, 2, 42, 41, 40, 39, 38, 48, 47, 21, 20, 19 |
+| TFT | CS 10 · SDI/MOSI 11 · SCK 12 · DC 13 · RESET 14 · VCC y LED 3V3 · GND |
+| **Prohibidos** | 0 y 45 (arranque), 35, 36, 37 (PSRAM del N16R8), 43/44 (TX/RX) |
 
-El otro VCC queda sin conectar. **Sin pilas en la Casio** y con los 24 pulsadores de la
-protoboard desconectados (usan los mismos pines).
-
-```
-pio run -e casio_test -t upload --upload-port COM14
-```
+**Sin pilas en la Casio**: sus resortes están en la misma placa y meterían 6 V a los pines.
 
 ## Estructura
 

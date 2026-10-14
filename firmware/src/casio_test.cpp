@@ -3,10 +3,10 @@
 //
 // No hace falta saber cuáles líneas son filas y cuáles columnas: el programa pone en LOW
 // una línea a la vez y mira cuál de las demás baja. Cada tecla une dos líneas, así que cada
-// tecla aparece como un par ("T710 + T719") con su propio símbolo en la pantalla.
+// tecla aparece como un par ("IO5 + IO18") con su propio símbolo en la pantalla.
 //
 // Para ponerle nombre a una tecla: presiónala, copia la línea que sale en el monitor serie
-// (por ejemplo  {"T710", "T719", "?"},) dentro de KEYS (más abajo) y cambia "?" por el nombre.
+// (por ejemplo  {"IO5", "IO18", "?"},) dentro de KEYS (más abajo) y cambia "?" por el nombre.
 
 #ifdef CASIO_KEY_TEST
 
@@ -18,24 +18,27 @@
 namespace {
 
 // ---------------------------------------------------------------------------------------
-// 1) CABLES: línea del conector de la Casio -> pin del ESP32.
-//    "name" es lo que aparece en la pantalla; "cn" es el número de pin del conector (hoja).
+// 1) CABLES: el cable plano de la Casio va directo a estos pines del DevKit.
+//    Cada línea se llama como su pin (IO5, IO18...). Si algún pin de la lista no tiene
+//    cable, no pasa nada: simplemente nunca aparece.
+//    NUNCA uses 0, 45, 35, 36 ni 37 (arranque y memoria PSRAM de la placa).
 // ---------------------------------------------------------------------------------------
 struct Line {
   uint8_t gpio;
   const char* name;
-  uint8_t cn;
 };
 
 const Line LINES[] = {
-    {4, "T710", 4},   {5, "T703", 5},   {6, "T706", 6},   {7, "T716", 7},
-    {15, "T707", 8},  {16, "P9", 9},    {17, "P10", 10},  {18, "T719", 11},
-    {8, "T708", 12},  {9, "T711", 13},  {1, "T712", 14},  {2, "T713", 15},
-    {42, "T714", 16}, {41, "T705", 17}, {40, "T704", 18}, {39, "T709", 19},
-    {47, "VCC", 2},  // por si alguna tecla (por ejemplo AC/ON) va a VCC
+  // lado derecho del DevKit (el de los pines 4 a 13)
+  {5, "IO5"}, {6, "IO6"}, {7, "IO7"}, {15, "IO15"}, {16, "IO16"},
+  {17, "IO17"}, {18, "IO18"}, {8, "IO8"}, {3, "IO3"}, {46, "IO46"},
+  // lado izquierdo del DevKit (el de los pines 1 a 21)
+  {1, "IO1"}, {2, "IO2"}, {42, "IO42"}, {41, "IO41"}, {40, "IO40"}, {39, "IO39"},
+  {38, "IO38"}, {48, "IO48"}, {47, "IO47"}, {21, "IO21"}, {20, "IO20"}, {19, "IO19"},
 };
+
 constexpr int N = sizeof(LINES) / sizeof(LINES[0]);
-constexpr int GND = N;    // los pines GND de la Casio van al GND del ESP32
+constexpr int GND = N;    // por si algún día conectas un GND de la Casio al GND del ESP32
 constexpr int NODES = N + 1;
 constexpr int PAIRS = NODES * (NODES - 1) / 2;
 
@@ -50,7 +53,7 @@ struct KeyName {
 };
 
 const KeyName KEYS[] = {
-    // {"T710", "T719", "SHIFT"},   <- ejemplo: quita las // y cambia los valores
+    // {"IO5", "IO18", "SHIFT"},   <- ejemplo: quita las // y cambia los valores
     {nullptr, nullptr, nullptr},  // no borres esta línea
 };
 
@@ -73,8 +76,13 @@ int pairIndex(int a, int b) {
 
 const char* nodeName(int i) { return i == GND ? "GND" : LINES[i].name; }
 
-// Símbolo automático distinto para cada par: ASCII 33..126 y luego 128.. de la fuente GLCD.
-uint16_t autoSymbol(int idx) { return idx < 94 ? 33 + idx : 128 + (idx - 94); }
+// Símbolo automático distinto para cada par: la fuente básica tiene 253 dibujos distintos
+// (33..127, 128..254 y 1..31), uno por cada par posible.
+uint16_t autoSymbol(int idx) {
+  if (idx < 95) return 33 + idx;
+  if (idx < 222) return 128 + (idx - 95);
+  return 1 + (idx - 222);
+}
 
 const char* userLabel(int a, int b) {
   for (const KeyName* k = KEYS; k->a != nullptr; k++) {
@@ -185,16 +193,8 @@ void showKey(int a, int b, int idx) {
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString(text, w / 2, 150, 4);
 
-  const int gpioA = LINES[a].gpio;
-  if (b == GND) {
-    snprintf(text, sizeof(text), "pin %d  |  IO%d + GND", LINES[a].cn, gpioA);
-  } else {
-    snprintf(text, sizeof(text), "pines %d y %d  |  IO%d + IO%d", LINES[a].cn, LINES[b].cn, gpioA, LINES[b].gpio);
-  }
-  tft.setTextColor(TFT_LIGHTGREY, TFT_BLACK);
-  tft.drawString(text, w / 2, 182, 2);
   tft.setTextColor(label ? TFT_GREEN : TFT_ORANGE, TFT_BLACK);
-  tft.drawString(label ? "(nombre tuyo)" : "(sin nombre: agregala en KEYS)", w / 2, 202, 2);
+  tft.drawString(label ? "(nombre tuyo)" : "(sin nombre: agregala en KEYS)", w / 2, 185, 2);
 }
 
 }  // namespace
@@ -203,10 +203,11 @@ void setup() {
   Serial.begin(115200);
   delay(200);
   Serial.println("\n[casio] prueba del teclado de la Casio");
-  for (int i = 0; i < N; i++) pinMode(LINES[i].gpio, INPUT_PULLUP);
-
   tft.init();
   tft.setRotation(1);
+  tft.setAttribute(CP437_SWITCH, true);
+  // Después de tft.init(): el pin 21 (retroiluminación) ahora es una línea del teclado.
+  for (int i = 0; i < N; i++) pinMode(LINES[i].gpio, INPUT_PULLUP);
   drawFrame();
   tft.setTextDatum(MC_DATUM);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
