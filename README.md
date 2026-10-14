@@ -83,6 +83,9 @@ pio device monitor                          # log por el puerto serie
   se reinicia. (El log de `Serial` sale por la entrada USB nativa, como en la PCB final.)
 - Si la carga falla con `MD5 of file does not match data in flash`, borra la memoria una vez y vuelve a subir:
   `esptool.py --port COMx erase_flash` (pasó con una N16R8 clónica con flash Boya).
+- El firmware está configurado para el módulo **N16R8** (flash DIO de 16 MB + PSRAM octal, `dio_opi`).
+  Con la configuración por defecto de la placa (`qio_qspi`) esa N16R8 clónica se reiniciaba en bucle
+  (`Guru Meditation Error`, watchdog).
 - `src/secrets.h` está en `.gitignore`. **Nunca subas la API key al repo.**
 - ST7789: si los colores salen invertidos o con rojo y azul cambiados, mira los comentarios de `[env:st7789]` en `platformio.ini`.
 - Pruebas de la lógica en la PC, sin hardware: `pio test -e native`.
