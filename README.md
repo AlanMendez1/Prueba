@@ -150,6 +150,32 @@ El campo `issuer` del último certificado de la cadena nombra la CA raíz. Desca
 (PEM) desde el sitio de la CA y pégalo en `secrets.h`. Los raíces duran años; los
 intermedios cambian más seguido.
 
+## Prueba del teclado original de la Casio
+
+Cable plano soldado al conector **CN701** de la placa de teclas. El programa `src/casio_test.cpp`
+(entorno `casio_test`) no necesita saber qué líneas son filas o columnas: pone en LOW una línea a
+la vez y muestra en la TFT el par que une cada tecla (`T710 + T719`) con un símbolo distinto.
+El monitor serie imprime la línea lista para copiar a la tabla `KEYS` y darle nombre a la tecla.
+
+| Casio (CN701) | ESP32 | Casio (CN701) | ESP32 |
+|---|---|---|---|
+| 4 · T710 | IO4 | 12 · T708 | IO8 |
+| 5 · T703 | IO5 | 13 · T711 | IO9 |
+| 6 · T706 | IO6 | 14 · T712 | IO1 |
+| 7 · T716 | IO7 | 15 · T713 | IO2 |
+| 8 · T707 | IO15 | 16 · T714 | IO42 |
+| 9 · (sin nombre) | IO16 | 17 · T705 | IO41 |
+| 10 · (sin nombre) | IO17 | 18 · T704 | IO40 |
+| 11 · T719 | IO18 | 19 · T709 | IO39 |
+| un VCC | IO47 | los 2 GND | GND |
+
+El otro VCC queda sin conectar. **Sin pilas en la Casio** y con los 24 pulsadores de la
+protoboard desconectados (usan los mismos pines).
+
+```
+pio run -e casio_test -t upload --upload-port COM14
+```
+
 ## Estructura
 
 ```
