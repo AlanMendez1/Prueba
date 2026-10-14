@@ -75,7 +75,7 @@ Con **PlatformIO** (VS Code + extensión PlatformIO, o `pip install platformio`)
 ```bash
 cd firmware
 cp src/secrets.h.example src/secrets.h     # y completa WiFi + API key
-pio run -e ili9341 -t upload               # o: -e st7789 · en la PCB mínima: -e pcb
+pio run -e st7789 -t upload                # o: -e ili9341 · en la PCB mínima: -e pcb
 pio device monitor                          # log por el puerto serie
 ```
 
@@ -83,6 +83,9 @@ pio device monitor                          # log por el puerto serie
   se reinicia. (El log de `Serial` sale por la entrada USB nativa, como en la PCB final.)
 - Si la carga falla con `MD5 of file does not match data in flash`, borra la memoria una vez y vuelve a subir:
   `esptool.py --port COMx erase_flash` (pasó con una N16R8 clónica con flash Boya).
+- La pantalla roja de 2,8" (panel TPM408-2.8) resultó ser **ST7789**, aunque se venda como ILI9341: con
+  el driver ILI9341 dibuja solo 2/3 de la pantalla y con rojo/azul cambiados. El entorno `st7789` (por defecto)
+  usa `TFT_INVERSION_OFF` y `TFT_RGB_ORDER=TFT_BGR` para ese panel.
 - El firmware está configurado para el módulo **N16R8** (flash DIO de 16 MB + PSRAM octal, `dio_opi`).
   Con la configuración por defecto de la placa (`qio_qspi`) esa N16R8 clónica se reiniciaba en bucle
   (`Guru Meditation Error`, watchdog).
