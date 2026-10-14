@@ -122,18 +122,32 @@ void handleAnswer(Key k) {
 
 void setup() {
   Serial.begin(115200);
+  delay(200);
+  Serial.println("\n[boot] CalculadoraIA arrancando");
   keypad.begin();
+  Serial.println("[boot] teclado listo");
   ui.begin();
+  Serial.println("[boot] pantalla inicializada");
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);  // conecta en segundo plano
+  Serial.printf("[wifi] conectando a \"%s\"...\n", WIFI_SSID);
   showCalc();
+  Serial.println("[boot] listo: pantalla CALC dibujada");
 }
 
 void loop() {
-  ui.setWifi(WiFi.status() == WL_CONNECTED);
+  static bool wifiWasUp = false;
+  const bool wifiUp = WiFi.status() == WL_CONNECTED;
+  if (wifiUp != wifiWasUp) {
+    wifiWasUp = wifiUp;
+    if (wifiUp) Serial.printf("[wifi] conectado, IP %s\n", WiFi.localIP().toString().c_str());
+    else Serial.println("[wifi] desconectado");
+  }
+  ui.setWifi(wifiUp);
 
   const Key k = keypad.poll();
   if (k == Key::None) return;
+  Serial.printf("[tecla] %d\n", static_cast<int>(k));
 
   switch (mode) {
     case Mode::Calc: handleCalc(k); break;
