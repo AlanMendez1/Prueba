@@ -13,7 +13,7 @@ El diseño completo (50 teclas, cámara, MCP23017) sigue en pausa y **no** se to
 
 | Fase | Qué | Estado |
 |---|---|---|
-| 0 | Firmware en protoboard: ESP32-S3-DevKitC + TFT SPI + 24 pulsadores | **Firmware listo** (compila; lógica con pruebas) — falta probarlo en hardware |
+| 0 | Firmware en protoboard: ESP32-S3-DevKitC + TFT SPI + 24 pulsadores | **Probado en hardware (2026-10-14)**: calculadora, menú IA y respuesta de Claude por WiFi. Teclado probado uniendo pines; falta armar los 24 botones |
 | 1 | PCB mínima 90 × 135 mm (mismos pines) | **Esquema, BOM y plano listos** en [`hardware/`](hardware/) — falta dibujarla en KiCad |
 
 ## Decisiones de este prototipo (2026-10-12)
