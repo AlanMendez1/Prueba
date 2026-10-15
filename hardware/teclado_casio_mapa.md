@@ -3,6 +3,8 @@
 Medido el 2026-10-14 con `firmware/arduino/casio_asignar`. El cable plano del conector CN701 va
 directo a los pines del DevKit. Cada tecla une una **fila** con una **columna**.
 
+![Estado de cada tecla](teclado_casio_estado.png)
+
 ## Matriz
 
 | Fila \ Columna | IO46 | IO41 | IO42 | IO7 | IO3 | IO21 |
